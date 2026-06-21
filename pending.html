@@ -1,0 +1,28 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+
+{% for vendor in pending_requests %}
+
+<form method="POST" action="http://127.0.0.1:8000/a0/approve_or_reject">
+
+    {% for j in vendor %}
+        {{ j }}<br>
+    {% endfor %}
+
+    <input type="hidden" name="email" value="{{ vendor[0] }}">
+
+    <input type="submit" name="button" value="reject">
+    <input type="submit" name="button" value="approve">
+
+</form>
+
+<br><br><br>
+
+{% endfor %}
+
+</body>
+</html>
