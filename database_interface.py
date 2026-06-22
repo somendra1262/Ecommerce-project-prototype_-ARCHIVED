@@ -18,6 +18,16 @@ class vendor(SQLModel, table=True):
     address:str
     category:str
 
+class product(SQLModel,table=True):
+    pid:int|None=Field(default=None, primary_key=True)
+    email:str
+    name:str
+    category:str
+    price:int
+    quantity:int
+    image:bytes
+    desc:str
+
 engine=create_engine("sqlite:///myecomdb.db",echo=True)
 SQLModel.metadata.create_all(engine)
 
@@ -80,15 +90,12 @@ def delete_v(key:str):
         to_delete=session.exec(query).one()
         session.delete(to_delete)
         session.commit()
-def show():
-    vendors=select_allv()
-    requests=select_allvr()
-    print("vendor table: ")
-    for i in vendors:
-        print(i,sep=' ')
-    print("vendor request table: ")
-    for i in requests:
-        print(i,sep=' ')
 
-show()
+def insert_p(data:dict):
+    entity=product(**data)
+    with Session(engine) as session:
+        session.add(entity)
+        session.commit()
+
+
 
