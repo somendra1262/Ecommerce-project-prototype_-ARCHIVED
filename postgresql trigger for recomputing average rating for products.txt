@@ -1,0 +1,33 @@
+for recomputing the average ratings of products upon insertion or deletion of a review:
+
+function:
+
+CREATE OR REPLACE FUNCTION recompute_product_rating()
+RETURNS trigger AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE product
+    SET avgr_p = (
+      SELECT AVG(rating) FROM review WHERE pid = NEW.pid
+    )
+    WHERE pid = NEW.pid;
+
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE product
+    SET avgr_p = (
+      SELECT AVG(rating) FROM review WHERE pid = OLD.pid
+    )
+    WHERE pid = OLD.pid;
+  END IF;
+
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
+trigger:
+
+CREATE TRIGGER trg_recompute_product_rating
+AFTER INSERT OR DELETE ON review
+FOR EACH ROW
+EXECUTE FUNCTION recompute_product_rating();

@@ -1,0 +1,30 @@
+for recomputing the average ratings of vendors upon updation of a product's average rating, or deletion of a product:
+
+
+function:
+
+
+CREATE OR REPLACE FUNCTION update_vendor_average()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    UPDATE vendor
+    SET avgr = (
+        SELECT AVG(avgr_p)
+        FROM product
+        WHERE email = COALESCE(NEW.email, OLD.email)
+    )
+    WHERE email = COALESCE(NEW.email, OLD.email);
+
+    RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql;
+
+
+trigger:
+
+CREATE TRIGGER trg_update_vendor_average
+AFTER DELETE OR UPDATE OF avgr_p
+ON product
+FOR EACH ROW
+EXECUTE FUNCTION update_vendor_average();
